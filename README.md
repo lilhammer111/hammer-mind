@@ -1,4 +1,4 @@
-Quick Start
+# Quick Start
 
 This projects is for sharing the notes on learning about computers and programming development. 
 
