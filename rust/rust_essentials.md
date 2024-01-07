@@ -2,6 +2,14 @@
 
 rust使用snake case命名规范，所有字母小写，常量所有字母大写。
 
+# Annotation （类型注解）
+
+在声明变量时，rust使用annotatin来显式声明变量的类型：
+
+```rust
+let some_number: i32 = 5;
+```
+
 # mut
 
 使用`mut`关键字声明的变量才可变
@@ -171,8 +179,6 @@ fn plus_five(x: i32) -> i32 {
 # if expression
 
 `if`的condition条件必须是`bool`类型。
-
-# match
 
 # loop
 
@@ -396,6 +402,152 @@ fn main() {
     let square = Rectangle::square(10);
 }
 ```
+
+# 枚举
+
+用法：
+
+```rust
+enum IpAddrKind {
+    V4,
+    V6
+}
+
+fn main() {
+    let fout = IpAddrKind::V4;
+    let six = IpAddrKind::V6;
+    route(four);
+    route(six);
+    route(IpAddrKind::v4); 
+}
+
+fn route(ip_kind: IpAddrKind) {}
+```
+
+另一种方式（嵌入的类型也可以是结构体）：
+
+```rust
+enum IpAddrKind {
+    V4(u8, u8, u8, u8),
+    V6(String),
+}
+
+fn main() {
+    let home = IpAddrKind::V4(127, 0, 0, 1);
+    let loopback = IpAddrKind::V6(String::from("::1"));
+}
+```
+
+使用`impl`关键字为枚举定义方法：
+
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32),
+}
+
+impl Message {
+    fn call(&self) {}
+}
+
+fn main() {
+    let q = Message::Quit;
+    let q = Message::Move { x: 12, y: 24};
+    let q = Message::Write(String::from("Hello"));
+    let q = Message::ChangeColor(0, 255, 255);
+    
+    m.call();
+}
+```
+
+# Option 枚举
+
+option枚举是定义在标准库中的。
+
+在Prelude预导入模块中。
+
+意思是，某个值可能存在也可能不存在。
+
+# Rust中的Null
+
+rust中没有null，取而代之的是一个option<T>的枚举。
+
+Option<T>的结构：
+
+```rust
+enum Option<T> {
+	Some(T),
+    None,
+}
+```
+
+`Option<T>`，`Some(T)`以及None都可以直接使用，不需要使用命名空间前缀，因为他们都在Prelude预导入模块中。
+
+这样设计的原因是将某个类型的null和某个类型本身给区别开来，以后null就是null，某个类型就是某个类型，而不存在某个类型的null这种概念。
+
+例如这种情况，编译就不通过：
+```rust
+fn main(){
+    let x: i8 = 5;
+    let y: Option<i8> = Some(5);
+	
+    let sum = x + y; // x, y不是同类型，不能进行运算
+}
+```
+
+# match
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
