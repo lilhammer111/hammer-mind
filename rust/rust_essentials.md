@@ -377,6 +377,15 @@ fn calculate_length(s: &mut String) -> usize {
 1. 不可以同时存在两个可变引用（并发安全）。
 2. 不可以同时存在一个可变引用和一个不可变引用，因为不可变引用失去意义。
 
+# 借用规则
+
+总的来说，借用规则如下：
+
+- 同一时刻，你只能拥有要么一个可变引用, 要么任意多个不可变引用
+- 引用必须总是有效的
+
+这里“引用必须总是有效的”是指被引用的数据必须有效，不能被释放或者回收，也即被引用的数据的生命周期要大于引用的生命周期。
+
 # 引用与借用的区别
 
 在 Rust 中，**引用**和**借用**这两个术语经常一起使用，它们密切相关但有细微的区别。理解这两个概念对于掌握 Rust 的内存安全特性至关重要。
@@ -711,9 +720,9 @@ Option枚举是在Prelude预导入模块中。
 
 
 
-rust中没有null，null的问题是，当你想像使用非NULL值那样使用NULL值的时候就会引起错误，类似于空指针引用。Rust取而代之的是一个Option<T>的枚举。
+rust中没有null，null的问题是，当你想像使用非NULL值那样使用NULL值的时候就会引起错误，类似于空指针引用。Rust取而代之的是一个Option\<T>的枚举。
 
-Option<T>的结构：
+Option\<T>的结构：
 
 ```rust
 enum Option<T> {
@@ -839,6 +848,86 @@ fn main() {
     }
 }
 ```
+
+
+
+# 生命周期
+
+引用所指向的数据一定要比引用活得更久，否则就会发生悬垂指针这种不安全的情况。
+
+```rust
+{
+    let r;
+
+    {
+        let x = 5;
+        r = &x; 
+    } // r所指向的数据x在这里就“死了”
+
+    println!("r: {}", r); // 但是r在这里还活着，就违反了： 引用所指向的数据一定要比引用活得更久
+}
+```
+
+
+
+这个函数返回了一个引用：
+
+```rust
+fn longest(x: &str, y: &str) -> &str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+```
+
+当一个函数返回引用时，我们就需要为这个函数标注生命周期，因为这个函数的调用可能是以下这几种情况：
+
+情况一：
+
+```rust
+fn main() {
+    let string1 = String::from("long string is long");
+    let result;
+    {
+        let string2 = String::from("xyz");
+        result = longest(string1.as_str(), string2.as_str());
+    }
+    println!("The longest string is {}", result);
+}
+```
+
+情况二，我们把`main()`中第一句代码和第三句代码互换位置：
+
+```rust
+fn main() {
+    let string2 = String::from("xyz");
+    let result;
+    {
+        let string1 = String::from("long string is long");
+        result = longest(string1.as_str(), string2.as_str());
+    }
+    println!("The longest string is {}", result);
+}
+```
+
+我们知道，result实际指向的是两个字符串中更短的那个，也就是string2，所以只要string2活得比result这个引用更久就行了，在情况一种，string2已经在花括号的作用域内“死了”，但是result这个引用还活着，这是不安全的！但是在情况二中，string2就一直活着，跟result活得一样久，这很安全！
+
+所以说，不同的调用环境可能会产生不同的结果（安全或者不安全）！
+
+但我们要确保代码是安全的，咋整？现在假设你是rust编译器，你会怎么解决这个问题？你总不能先运行这段代码试试看吧？有没有什么简单的办法？
+
+有没有这么一种可能，你（一个编译器）心想：开发者啊，你帮我把这个函数返回的引用设置一个假的生命周期，因为函数返回的引用只能从参数中来，那就只能是
+
+
+
+这些分析都是我们人为地在这两个特定例子中去尝试调用`longest()`这个函数得出来的结果。但对于这个函数而言，并不是只有上面这两个情况的调用环境的，换句话说，调用环境是未知的，那编译器就不能确定返回的引用是x还是y了。甚至，对于我们开发者，我们尚且还知道这个`longest()`函数的返回值（也就是`&str`）他所指向的要么是string1要么是string2，所以result这个引用要比这两个
+
+我们并不知道调用他的外部环境是否是类型安全的，因此我们应该给
+
+
 
 # Package
 
@@ -1252,6 +1341,879 @@ fn main() {
     
 }
 ```
+
+例子：
+
+```rust
+use std::collections::HashMap;
+
+fn main() {
+    let text = "hello world hello hammer"
+    let mut word_counter = HashMap::new();
+    
+    for word in text.split_whitespace() {
+        let count = word_counter.entry(word).or_insert(0);
+        *count += 1;
+    }
+    
+    println!("{:#?}", map)
+}
+```
+
+# Panic
+
+panic可以选择中止或展开，默认展开模式。
+
+在展开的模式下，rust会在程序panic时，反向清理调用栈中的数据（工作量很大），如果是中止模式，则程序直接停止，所有内存数据由OS处理。
+
+中止模式，需要修改`Cargo.toml`文件：
+```toml
+...
+[profile.release]
+panic = 'abort'
+```
+
+
+
+panic宏例子：
+
+```rust
+fn main() {
+    // panic!("crash and burn");
+	let v = vec![1, 2, 3]
+    v[99];
+}
+```
+
+设置环境变量`RUST_BACKTRACE=1`则可以得到panic!宏的回溯信息。
+
+当我们在执行`cargo run`这个命令的时候，默认就是带了调试信息的，除非我们加上`--release`。
+
+ 
+
+# Result 枚举
+
+例子：
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt");
+    
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => {
+            panic!("Error opening file {:?}", error)
+        }
+    };
+}
+```
+
+进一步匹配不同的错误：
+
+```rust
+use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    let f = File::open("hello.txt");
+    
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => match error.kind() {
+             ErrorKind::NotFound => match File::create("hello.txt") {
+                 Ok(fc) => fc,
+                 Err(e) => panic!("Error creating file: {:?}", e),
+            },
+            other_error => panic!("Error opening the file: {:?}", other_error),
+        }, 
+    };
+}
+```
+
+使用闭包来简化代码：
+
+```rust
+use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    let f = File::open("hello.txt").unwarp_or_else(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            File::create("hello.txt").unwarp_or_else(|error| {
+                panic!("Error creating file: {:?}", error);
+            })
+        } else {
+            panic!("Error opening the file: {:?}", error);
+        }
+    });
+}    
+```
+
+
+
+`unwrap()`方法，如果Result的结果是Ok，则返回Ok里面的值，如果是Err则调用panic!宏：
+
+```rust
+use std::fs::File;
+
+fn main() {
+    // let f = File::open("hello.txt");
+    
+    // let f = match f {
+        // Ok(file) => file,
+        // Err(error) => {
+            // panic!("Error opening file {:?}", error)
+        // }
+    // };
+    
+    let f = File::open("hello.txt").unwarp(); // 等价于上面这段注释的代码
+}
+```
+
+
+
+`expect()`方法，和`unwrap()`方法类似，但可以指定错误信息：
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt").expect("Failed to open the file");
+}
+```
+
+
+
+传播错误：
+
+```rust
+use std::fs::File;
+use std::io::{self, Read};
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    // 打开文件，f是`Result<文件句柄,io::Error>`
+    let f = File::open("hello.txt");
+
+    let mut f = match f {
+        // 打开文件成功，将file句柄赋值给f
+        Ok(file) => file,
+        // 打开文件失败，将错误返回(向上传播)
+        Err(e) => return Err(e),
+    };
+    // 创建动态字符串s
+    let mut s = String::new();
+    // 从f文件句柄读取数据并写入s中
+    match f.read_to_string(&mut s) {
+        // 读取成功，返回Ok封装的字符串
+        Ok(_) => Ok(s),
+        // 将错误向上传播
+        Err(e) => Err(e),
+    }
+}
+```
+
+
+
+使用`?`宏改写上面的代码：
+
+```rust
+use std::fs::File;
+use std::io;
+use std::io::Read;
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut f = File::open("hello.txt")?; // 如果打开文件失败则返回Err，并且会将错误隐式转换成函数返回值中的错误类型，如果成功则将结果赋值给f
+    let mut s = String::new();
+    f.read_to_string(&mut s)?;
+    Ok(s)
+}
+```
+
+`?`宏也可以链式调用：
+
+```rust
+use std::fs::File;
+use std::io;
+use std::io::Read;
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut s = String::new();
+    File::open("hello.txt")?.read_to_string(&mut s)?;
+    Ok(s)
+}
+```
+
+
+
+# 泛型
+
+泛型声明：
+
+```rust
+fn largest<T>(list: &[T]) -> T 
+```
+
+
+
+结构体中使用泛型：
+
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let integer = Point { x: 5, y: 10 };
+    let float = Point { x: 1.0, y: 4.0 };
+}
+```
+
+使用不同的泛型：
+
+```rust
+struct Point<T,U> {
+    x: T,
+    y: U,
+}
+
+fn main() {
+    let p = Point{x: 1, y :1.1};
+}
+```
+
+
+
+枚举中使用泛型：
+
+卧龙：
+
+```rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+```
+
+凤雏：
+
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+
+
+方法中的使用泛型：
+
+```rust
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+impl<T, U> Point<T, U> {
+    fn mixup<V, W>(self, other: Point<V, W>) -> Point<T, W> {
+        Point {
+            x: self.x,
+            y: other.y,
+        }
+    }
+}
+
+fn main() {
+    let p1 = Point { x: 5, y: 10.4 };
+    let p2 = Point { x: "Hello", y: 'c'};
+
+    let p3 = p1.mixup(p2);
+
+    println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+}
+```
+
+
+
+为具体的泛型类型实现方法
+
+```rust
+impl Point<f32> {
+    fn distance_from_origin(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+}
+```
+
+
+
+# 单态化
+
+Rust执行泛型代码的速度和执行具体类型代码的速度是一致的，因为Rust在编译时会将泛型替换成具体的类型，这一过程称为单态化。
+
+
+
+# 特征（Trait）
+
+trait的定义：
+
+```rust
+pub trait Summary {
+    fn summarize(&self) -> String;
+}
+```
+
+为类型实现trait:
+
+```rust
+// src/lib.rs
+pub trait Summary {
+    fn summarize(&self) -> String;
+}
+pub struct Post {
+    pub title: String, // 标题
+    pub author: String, // 作者
+    pub content: String, // 内容
+}
+
+impl Summary for Post {
+    fn summarize(&self) -> String {
+        format!("文章{}, 作者是{}", self.title, self.author)
+    }
+}
+
+pub struct Weibo {
+    pub username: String,
+    pub content: String
+}
+
+impl Summary for Weibo {
+    fn summarize(&self) -> String {
+        format!("{}发表了微博{}", self.username, self.content)
+    }
+}
+```
+
+在`main.rs`中调用，假设`Cargo.toml`中的package包名是demo：
+
+```rust
+use demo::Summary;
+use demo::Weibo;
+use demo::Post;
+
+fn main() {
+    let post = Post{title: "Rust语言简介".to_string(),author: "Sunface".to_string(), content: "Rust棒极了!".to_string()};
+    let weibo = Weibo{username: "sunface".to_string(),content: "好像微博没Tweet好用".to_string()};
+
+    println!("{}",post.summarize());
+    println!("{}",weibo.summarize());
+}
+```
+
+# 特征对象
+
+
+
+# 对象安全
+
+
+
+# 孤儿规则
+
+
+
+# 闭包
+
+闭包的意义在于代码解耦合，可维护。
+
+每个闭包表达式具有唯一的匿名类型。
+
+闭包捕获变量有三种途径，恰好对应闭包函数参数的三种传入方式：转移所有权、可变借用、不可变借用，因此相应的 `Fn` 特征也有三种：
+
+1. `FnOnce`，该类型的闭包会拿走被捕获变量的所有权。运行环境中的变量所有权被转移到闭包中了，那必然意味着这个闭包下次再也不能从运行环境中拿到这个已经被转移了所有权的变量的所有权了，所以`FnOnce`类型的闭包**只能运行一次**。但是如果该变量类型实现了Copy Trait，那闭包每次获取该变量所有权时获取的都是该变量的副本的所有权，所以即使是`FnOnce`类型的闭包**也有可能被多次运行**。如果想强制闭包取得捕获变量的所有权而非副本的所有权，可以在参数列表前添加 `move` 关键字，这种用法通常用于闭包的生命周期大于捕获变量的生命周期时，例如将闭包返回或移入其他线程。
+2. `FnMut`，它以可变借用的方式捕获了环境中的值，因此可以修改该值。
+3. `Fn` 特征，它以不可变借用的方式捕获环境中的值
+
+**一个闭包实现了哪种`Fn`特征，既取决于该闭包如何捕获变量，也取决于闭包体内如何使用这些被捕获的变量。**
+
+实际上，一个闭包并不仅仅实现某一种 `Fn` 特征，规则如下：
+
+- 所有的闭包都自动实现了 `FnOnce` 特征，因此任何一个闭包都至少可以被调用一次
+- 没有移出所捕获变量的所有权的闭包自动实现了 `FnMut` 特征
+- 不需要对捕获变量进行改变的闭包自动实现了 `Fn` 特征
+
+# 迭代器
+
+```rust
+fn main() {
+    let v1 = vec![1, 2, 3];
+    let v1_iter = v1.iter();
+    for val in v1_iter {
+        println!("Got: {}", val);
+    }
+}
+```
+
+
+
+iterator trait:
+
+```rust
+pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+    // ...
+}
+```
+
+例子：
+
+```rust
+#[cfg(test)]
+mod tests {
+	#[test]
+    fn iterator_demonstration() {
+    	let v1 = vec![1, 2, 3];
+    	let mut v1_iter = v1.iter(); // mut可变是因为next()方法会修改迭代器的某个字段值，所以这里必须用mut
+    
+    	assert_eq!(v1_iter.next(), Some(&1));
+    	assert_eq!(v1_iter.next(), Some(&2));
+    	assert_eq!(v1_iter.next(), Some(&3));
+	}
+}
+```
+
+![image-20240211190514994](/home/lilhammer/snap/typora/86/.config/Typora/typora-user-images/image-20240211190514994.png)
+
+
+
+消耗迭代器的方法：
+
+ `sum()`方法：
+
+```rust
+fn iterator_sum() {
+    let v1 = vec![1, 2, 3];
+    let v1_iter = v1.iter();
+    
+    let total: i32 = v1_iter.sum();
+    println!("total: {}", total);
+}
+```
+
+`map()`方法，接受一个闭包，闭包作用于每个元素：
+
+```rust
+fn iterator_map() {
+    let v1 = vec![1, 2, 3];
+    let v2: Vec<_> =  v1.iter().map(|x| x + 1).collect(); // collect()方法会消耗这个map()迭代器适配器
+}
+```
+
+`filter()`方法，接受一个闭包，在遍历时会进行判断，如果为true则元素将会被包含在filter产生的迭代器中：
+
+```rust
+struct Shoe {
+    size: u32,
+    style: String,
+}
+
+fn shoes_in_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+    shoes.into_iter().filter(|s| s.size == shoe_size).collect()
+}
+
+```
+
+
+
+使用Iterator trait创建自定义迭代器：
+
+```rust
+struct Counter {
+    count: u32,
+}
+
+impl Counter {
+    fn new() -> Counter {
+        Counter { count: 0 }
+    }
+}
+
+impl Iterator for Counter {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.count < 5 {
+            self.count += 1;
+            Some(self.count)
+        } else {
+            None
+        }
+    }
+}
+
+#[test]
+let sum: u32 = Counter::new()
+    .zip(Counter::new().skip(1))
+    .map(|(a, b)| a * b)
+    .filter(|x| x % 3 == 0)
+    .sum();
+assert_eq!(18, sum);
+
+```
+
+ 
+
+# release profile
+
+
+
+# 文档注释
+
+
+
+# Workspace
+
+```toml
+[workspace]
+members = [
+	"adder",
+	"add-one",
+	"add-two",
+]
+```
+
+
+
+# 智能指针
+
+
+
+# Deref Trait
+
+
+
+# Drop Trait
+
+drop trait在prelude中。
+
+# Rc\<T>
+
+# 内部可变性
+
+无法可变地借用一个不可变的值：
+
+```rust
+fn main() {
+    let x = 5;
+    let y = &mut x; // x是不可变的，&mut x就是可变地借用不可变的值，所以编译不通过
+}
+```
+
+
+
+# RefCell\<T>
+
+
+
+# 并发
+
+# thread::Spawn
+
+# Channel
+
+
+
+# OOP
+
+
+
+# 静态分派
+
+```rust
+trait Speak {
+    fn speak(&self);
+}
+
+struct Dog;
+struct Cat;
+
+impl Speak for Dog {
+    fn speak(&self) {
+        println!("Woof!");
+    }
+}
+
+impl Speak for Cat {
+    fn speak(&self) {
+        println!("Meow!");
+    }
+}
+
+fn make_some_noise<T: Speak>(animal: &T) {
+    animal.speak();
+}
+
+fn main() {
+    let dog = Dog;
+    let cat = Cat;
+
+    make_some_noise(&dog); // 在编译时确定调用 Dog::speak
+    make_some_noise(&cat); // 在编译时确定调用 Cat::speak
+}
+```
+
+
+
+# 动态分派
+
+```rust
+trait Speak {
+    fn speak(&self);
+}
+
+struct Dog;
+struct Cat;
+
+impl Speak for Dog {
+    fn speak(&self) {
+        println!("Woof!");
+    }
+}
+
+impl Speak for Cat {
+    fn speak(&self) {
+        println!("Meow!");
+    }
+}
+
+fn make_some_noise(animal: &dyn Speak) {
+    animal.speak();
+}
+
+fn main() {
+    let dog = Dog;
+    let cat = Cat;
+
+    make_some_noise(&dog); // 使用动态分派调用 speak
+    make_some_noise(&cat); // 使用动态分派调用 speak
+}
+```
+
+
+
+# 类型擦除
+
+
+
+# 状态模式（state pattern）
+
+
+
+# 可辩驳的
+
+
+
+# 模式
+
+直接匹配字面值：
+
+
+
+匹配命名变量：
+
+```rust
+let some_value = Some(5);
+
+match some_value {
+    Some(x) => println!("Got an integer: {}", x),
+    None => println!("Got nothing"),
+}
+```
+
+在这个例子中，`Some(x)`是一个模式，它匹配`some_value`中的`Some`变体。如果`some_value`是`Some`变体，那么它内部的值将被绑定到变量`x`上，并可以在相应的分支代码块中使用。这里的`x`就是一个命名变量，它允许我们在模式匹配的分支中访问匹配到的值。
+
+命名变量在处理更复杂的数据结构时特别有用，例如结构体、枚举或嵌套的模式：
+
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+}
+
+let msg = Message::Move { x: 3, y: 4 };
+
+match msg {
+    Message::Quit => println!("Quit"),
+    Message::Move { x, y } => println!("Move to x: {}, y: {}", x, y),
+    Message::Write(text) => println!("Text message: {}", text),
+}
+```
+
+在这个例子中，`Message::Move { x, y }`模式匹配`Message`枚举的`Move`变体，并将`Move`变体中的`x`和`y`字段绑定到同名的变量`x`和`y`上。这样我们就可以在打印语句中直接使用这些变量。
+
+模式匹配中的变量绑定默认是不可变的。如果需要可变地绑定变量，可以使用`mut`关键字（例如`Some(mut x)`）。
+
+
+
+多重模式：
+
+使用`|`语法表示或，就是可以匹配多种模式。
+
+```rust
+fn main() {
+    let x = 1;
+    match x {
+        1 |2 => println!("one or two"),
+        _ => println!("others"),
+    }
+}
+```
+
+
+
+使用`..=`语法匹配范围：
+
+```rust
+fn main() {
+    let x = 5;
+    match x {
+        1..=5 => println!("one through five"),
+        _ => println!("something else"),
+    }
+}
+```
+
+
+
+下划线开始命名的变量即使后续没有使用，编译也不会警告：
+
+```rust
+fn main() {
+    let _x = 5;
+    let y = 10; 
+}
+```
+
+
+
+使用`..`忽略不需要的部分：
+
+```rust
+fn main() {
+    let numbers = (2, 4, 6, 8, 10);
+    match numbers {
+        (first, .., last) => {
+            println!("some numbers: {}, {}", first, last);
+        },
+    }
+    
+    match numbers {
+        (.., seconde, ..) => { // 编译不通过，因为有歧义
+            println!("some numbers: {}", second) 
+        },
+    }
+}
+```
+
+
+
+match守卫：
+
+```rust
+fn main() {
+    let num = Some(4);
+    match num {
+        Some(x) if x < 5 => println!("less than five: {}", x), //这里的if x < 5就是match守卫
+        None => (),
+    }
+}
+```
+
+
+
+`@`绑定，让我们可以创建一个变量，该变量可以在测试某个值是否与模式匹配的同时保存该值：
+
+```rust
+enum Message {
+    Hello { id: i32 },
+}
+
+let msg = Message::Hello { id: 5 };
+
+match msg {
+    Message::Hello { id: id_variable @ 3..=7 } => {
+        println!("Found an id in range: {}", id_variable)
+    },
+    Message::Hello { id: 10..=12 } => {
+        println!("Found an id in another range")
+    },
+    Message::Hello { id } => {
+        println!("Found some other id: {}", id)
+    },
+}
+```
+
+
+
+# Unsafe Rust
+
+
+
+# 函数指针
+
+当把函数作为参数传递给函数的时候，函数会被强制转换成fn类型，也即函数指针（function pointer ）。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
