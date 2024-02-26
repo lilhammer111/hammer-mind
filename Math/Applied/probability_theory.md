@@ -212,6 +212,8 @@ Let the sample space corresponding to randomized trials be $S$, and for each eve
 
 Then $P(A)$ is said to be the probability of event $A$.
 
+
+
 We have the following properties of the probability of event $A$:
 
 1. $P(\phi)=0$
@@ -266,7 +268,7 @@ We have the following properties of the probability of event $A$:
 
 
 
-**example:** 
+**Example:** 
 
 let A and B shoot at the same target, knowing that the prabability of A hitting the target is 0.7, the probability of B hitting the target is 0.6, and the prabability of both hitting the target at the same time is 0.4,
 
@@ -308,33 +310,32 @@ The Classical Probability Model, also known as the classical definition of proba
 
 In the classical model, the probability of an event $A$ is calculated using the formula:
 $$
- P(A)={\text{Number of favorable outcomes to event} A\over \text{Total number of possible outcomes}} 
+P(A)={\text{Number of favorable outcomes to event} A\over \text{Total number of possible outcomes}}
 $$
 
-
-**example:**
+**Example:**
 
 There are 5 balls in a bag, 3 of which are white and 2 of which are yellow, and let the probability of getting each ball be equal.
 (1) Take a ball at random from the bag, let $A$ = {take a white ball}, and find $P(A)$;
 (2) Take two balls from the bag without putting them back, and let $B$ = {both are white balls}, find $P(B)$;
 
-**Answers:**
+- [x] **Answers:**
 
-(1) $P(A)=\frac 3 5$
+(1) $P(A)=\Large \frac 3 5$
 
-(2) $P(B) = {3\times2\over 5\times4 }={C_3^2 \over C_5^2}=\frac 3 {10}$
+(2) $P(B) = \Large{3\times2\over 5\times4 }={C_3^2 \over C_5^2}=\frac 3 {10}$
 
 
 
-Generally, there is $N$ balls in a bag, $a$ of which are white and $b=N-a$ of which are yellow. If we take $n$ balls without putting them back($n \leq N$) and denote that $A_k=\{\text{fetch exactly k white balls}\}\quad (k\leq a)$, then $P(A_k)={C_a^kC_b^{n-k} \over C_N^n}$, in which $C_N^n={n \choose k}={N! \over n!(N-n)!}$ .
+Generally, there is $N$ balls in a bag, $a$ of which are white and $b=N-a$ of which are yellow. If we take $n$ balls without putting them back($n \leq N$) and denote that $A_k=\{\text{fetch exactly k white balls}\}\quad (k\leq a)$, then $P(A_k)=\Large{C_a^kC_b^{n-k} \over C_N^n}$, in which $C_N^n=\Large{n \choose k}={N! \over n!(N-n)!}$ .
 
  
 
-**example:** 
+**Example:** 
 
 Assuming that there are a total of 23 people on the soccer field (11 per team, plus one referee), what is the probability that at least two of those 23 people will have the same birthday?
 
-**Answers:**
+- [x] **Answers:**
 
 Let the probability of birthday in 365 days be equal.
 
@@ -342,15 +343,15 @@ So there are $365^{23}$ possible birthday combinations for 23 people.
 
 For the event $A$ that neither of them has the same birthday, there are $365\times364\times\cdots\times(365-22)$ possible birthday combinations.
 
-So $P(A)={365\times364\times\cdots\times(365-22) \over 365^{23}}\approx0.493$, and then $P(\overline A)=1-P(A)=0.507$ .
+So $P(A)=\Large {365\times364\times\cdots\times(365-22) \over 365^{23}}\normalsize \approx0.493$, and then $P(\overline A)=1-P(A)=0.507$ .
 
 
 
-**example:**
+**Example:**
 
 There are $a$ white balls and $b$ yellow balls in a bag, which is denoted as $a+b=n$ . Let the probability of taking a ball from the bag be equal. If we repeat the procedure of taking a ball each time without  putting the ball back for $n$ times, find the probability of taking a white ball for the $k$th time.  
 
-**Answers:**
+- [ ] **Answers:**
 
 considering that we need to take these balls for $n$ times, we can mark the order for each taking from 1 to n. For the first time to take the ball, there is $n$ possibilities because we have $n$ balls. And for the next time, we have $n-1$ possibilities. Therefore, all the possibilities of taking all $n$ balls is $n!$ .
 
@@ -358,23 +359,53 @@ If we'd like to take a white ball for the $k$th time, we need to change our mind
 
 
 
+# Conditional Probability
+
+Conditional probability is a measure of the probability of an event occurring given that another event has already occurred. If the event of interest is A and the event it is conditioned on is B, the conditional probability is written as $P(A|B)$, and is read as "the probability of A given B".
+
+It's defined mathematically as:
+
+$$
+P(A|B) = \frac{P(A \cap B)}{P(B)}
+$$
+
+
+provided that $P(B) > 0$.
+
+Here, 
+- $P(A \cap B)$ is the probability that both events A and B occur (also known as the joint probability).
+- $P(B)$ is the probability of event B.
 
 
 
+The properties of conditional probability are the same as those of common probability:
+
+- $P(B|A)=1-P(\overline B|A)$
+- $P(B\cup C|A)=P(B|A)+P(C|A)-P(BC|A)$
 
 
 
+The multiplication rule for conditional probability(dependent events) is 
+$$
+P(A∩B)=P(A)×P(B∣A)
+$$
+**Example:**
 
+Given $P(A)=\Large{\frac 1 4}$ , $P(B|A)=\Large{\frac 1 3}$ , $P(A|B)=\Large {\frac 1 2}$ , find $P(A\cup B)$, $P(\overline A|A\cup B)$ .
 
+- [ ] **Answer:**
 
+According to the addtion rule for probability, we have:
 
+$P(A\cup B)=P(A)+P(B)-P(AB)$
 
+Addtional, according to the multiplication rule and definition for conditional probability, we have:
 
+$P(AB)=P(A)\times P(B|A)=\Large \frac 1 4 \normalsize\times \Large\frac 1 3\normalsize=\Large\frac 1 {12}$
 
+$P(B)=\Large{P(AB) \over P(A|B)}\normalsize=\Large {\frac 1 {12} \over \frac 1 2}\normalsize=\Large\frac 1 6$
 
-
-
-
+$\therefore P(A\cup B)=\Large \frac 1 4 \normalsize + \Large \frac 1 6 \normalsize - \Large \frac 1 {12}\normalsize=\Large \frac 1 3$
 
 
 
