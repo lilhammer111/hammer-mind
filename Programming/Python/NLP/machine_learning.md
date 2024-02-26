@@ -660,5 +660,64 @@ One-hot encoding（独热编码）是将分类变量转换为机器学习模型�
 
 
 
-# Random forest algorithm
+# Random Forest Algorithm
+
+
+
+# XGBoost
+
+
+
+# Clustering Algorithm
+
+聚类算法是一种数据分析方法，用于将一组对象根据相似性分组，使得同一组（称为一个簇）内的对象彼此之间更相似，而与其他组中的对象相比则差异更大。它是一种无监督学习方法，是统计数据分析中使用的常见技术。
+
+聚类算法在许多不同领域中都有应用，包括机器学习、模式识别、图像分析、信息检索和生物信息学。与分类算法不同，分类算法是基于标记数据将数据分类到预定义的组中，而聚类算法则是识别数据点之间的相似性，并将相似的数据点分组在一起。
+
+聚类算法有几种不同的类型：
+
+1. **K-均值聚类（K-Means Clustering）**：这是最简单和最流行的聚类算法之一。它的目标是将 n 个观测值划分为 k 个簇，每个观测值属于最近的平均值所代表的簇。这导致数据空间被划分成Voronoi单元。
+
+2. **层次聚类（Hierarchical Clustering）**：这种方法通过一系列的合并（聚合方法）或分裂（分裂方法）构建簇的层次结构。结果通常以树状图（dendrogram）呈现。
+
+3. **DBSCAN（基于密度的空间聚类应用与噪声）**：这种算法将簇视为高密度区域，由低密度区域分隔开。它可以找到任意形状的簇，并且甚至能识别出不属于任何簇的点（被视为噪声）。
+
+4. **均值漂移聚类（Mean Shift Clustering）**：这是一种基于质心的算法，通过更新候选质心为给定区域内点的均值来工作。它用于定位给定离散数据样本的密度函数的最大值。
+
+5. **谱聚类（Spectral Clustering）**：该技术利用相似性矩阵的特征值来降维，然后在较低维度中进行聚类。当簇的形状非常不规则或比球形复杂得多时，经常使用此方法。
+
+6. **亲和力传播（Affinity Propagation）**：它通过在样本对之间发送消息直至收敛来创建簇。与K-均值不同，它不需要在运行算法之前确定或估计簇的数量。
+
+选择聚类算法基于数据的具体要求和期望的结果。每种类型的算法都有其自身的优点和缺点，并适用于不同类型的数据集和不同的聚类任务。
+
+# K-means Algorithm 
+
+ Repeat {
+
+1. figure out which cluster centroid among all of the clusters is closest to the vector $x_m$ of the feature and then mark the vector $m_x$ as the member of cluster $k$ (assuming the cluster $k$ is the most qualified)
+1. calculate the average of all of the vectors in the cluster $k$ and let the average be the new centroid
+
+}
+
+
+
+the distortion (cost function) of k-means algorithm:
+$$
+J(c^{(1)},\dots,c^{(m)},\mu_1,\dots,\mu_K)=\frac 1 m \sum\limits_{i=1}^m\|x^{(i)}-\mu_{c^{(i)}}\|^2
+$$
+The k-means algorithm does its best to minimize the distortion.
+
+If the distortion keep the same for a single duration, it's possible that the distortion does have converged.
+
+![image-20240226165036203](C:\Users\19535\AppData\Roaming\Typora\typora-user-images\image-20240226165036203.png)
+
+In the above diagram, there are three distortion value of $J_1,J_2,J_3$, which we can get the results for the same training set through the k-means algorithm. And among all of these three, we konw the min value is $J_1$ which is what we want.
+
+
+
+How to initialize the centoiod?
+
+1. obviously, we should hold the inequality  $K < m$ true.
+2. select the $x_m$ as the centroid at random.
+3. repeat this proceduce for several times(may be 50 through 100 times) util the distortion converges
 

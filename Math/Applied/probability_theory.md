@@ -318,7 +318,7 @@ There are 5 balls in a bag, 3 of which are white and 2 of which are yellow, and 
 (1) Take a ball at random from the bag, let $A$ = {take a white ball}, and find $P(A)$;
 (2) Take two balls from the bag without putting them back, and let $B$ = {both are white balls}, find $P(B)$;
 
-Answers:
+**Answers:**
 
 (1) $P(A)=\frac 3 5$
 
@@ -326,6 +326,35 @@ Answers:
 
 
 
+Generally, there is $N$ balls in a bag, $a$ of which are white and $b=N-a$ of which are yellow. If we take $n$ balls without putting them back($n \leq N$) and denote that $A_k=\{\text{fetch exactly k white balls}\}\quad (k\leq a)$, then $P(A_k)={C_a^kC_b^{n-k} \over C_N^n}$, in which $C_N^n={n \choose k}={N! \over n!(N-n)!}$ .
+
+ 
+
+**example:** 
+
+Assuming that there are a total of 23 people on the soccer field (11 per team, plus one referee), what is the probability that at least two of those 23 people will have the same birthday?
+
+**Answers:**
+
+Let the probability of birthday in 365 days be equal.
+
+So there are $365^{23}$ possible birthday combinations for 23 people.
+
+For the event $A$ that neither of them has the same birthday, there are $365\times364\times\cdots\times(365-22)$ possible birthday combinations.
+
+So $P(A)={365\times364\times\cdots\times(365-22) \over 365^{23}}\approx0.493$, and then $P(\overline A)=1-P(A)=0.507$ .
+
+
+
+**example:**
+
+There are $a$ white balls and $b$ yellow balls in a bag, which is denoted as $a+b=n$ . Let the probability of taking a ball from the bag be equal. If we repeat the procedure of taking a ball each time without  putting the ball back for $n$ times, find the probability of taking a white ball for the $k$th time.  
+
+**Answers:**
+
+considering that we need to take these balls for $n$ times, we can mark the order for each taking from 1 to n. For the first time to take the ball, there is $n$ possibilities because we have $n$ balls. And for the next time, we have $n-1$ possibilities. Therefore, all the possibilities of taking all $n$ balls is $n!$ .
+
+If we'd like to take a white ball for the $k$th time, we need to change our mind when we consider how to take all $n$ balls. 
 
 
 
@@ -351,28 +380,7 @@ Answers:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 
