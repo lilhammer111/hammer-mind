@@ -405,7 +405,7 @@ $P(AB)=P(A)\times P(B|A)=\Large \frac 1 4 \normalsize\times \Large\frac 1 3\norm
 
 $P(B)=\Large{P(AB) \over P(A|B)}\normalsize=\Large {\frac 1 {12} \over \frac 1 2}\normalsize=\Large\frac 1 6$
 
-$\therefore P(A\cup B)= \frac 1 4  +  \frac 1 6 - \frac 1 {12}=\frac 1 3$
+$\therefore P(A\cup B)=  \large\frac 1 4  \normalsize+ \large \frac 1 6 \normalsize- \large\frac 1 {12}\normalsize=\large\frac 1 3$
 
 
 
