@@ -321,13 +321,13 @@ There are 5 balls in a bag, 3 of which are white and 2 of which are yellow, and 
 
 - [x] **Answers:**
 
-(1) $P(A)=\Large \frac 3 5$
+(1) $P(A)=\large \frac 3 5$
 
-(2) $P(B) = \Large{3\times2\over 5\times4 }={C_3^2 \over C_5^2}=\frac 3 {10}$
+(2) $P(B) = \large{3\times2\over 5\times4 }={C_3^2 \over C_5^2}=\frac 3 {10}$
 
 
 
-Generally, there is $N$ balls in a bag, $a$ of which are white and $b=N-a$ of which are yellow. If we take $n$ balls without putting them back($n \leq N$) and denote that $A_k=\{\text{fetch exactly k white balls}\}\quad (k\leq a)$, then $P(A_k)=\Large{C_a^kC_b^{n-k} \over C_N^n}$, in which $C_N^n=\Large{n \choose k}={N! \over n!(N-n)!}$ .
+Generally, there is $N$ balls in a bag, $a$ of which are white and $b=N-a$ of which are yellow. If we take $n$ balls without putting them back($n \leq N$) and denote that $A_k=\{\text{fetch exactly k white balls}\}\quad (k\leq a)$, then $P(A_k)=\large{C_a^kC_b^{n-k} \over C_N^n}$, in which $C_N^n=\large{n \choose k}={N! \over n!(N-n)!}$ .
 
  
 
@@ -343,7 +343,7 @@ So there are $365^{23}$ possible birthday combinations for 23 people.
 
 For the event $A$ that neither of them has the same birthday, there are $365\times364\times\cdots\times(365-22)$ possible birthday combinations.
 
-So $P(A)=\Large {365\times364\times\cdots\times(365-22) \over 365^{23}}\normalsize \approx0.493$, and then $P(\overline A)=1-P(A)=0.507$ .
+So $P(A)=\large {365\times364\times\cdots\times(365-22) \over 365^{23}} \normalsize \approx0.493$, and then $P(\overline A)=1-P(A)=0.507$ .
 
 
 
@@ -391,7 +391,7 @@ P(A∩B)=P(A)×P(B∣A)
 $$
 **Example:**
 
-Given $P(A)=\Large{\frac 1 4}$ , $P(B|A)=\Large{\frac 1 3}$ , $P(A|B)=\Large {\frac 1 2}$ , find $P(A\cup B)$, $P(\overline A|A\cup B)$ .
+Given $P(A)=\large{\frac 1 4}$ , $P(B|A)=\large{\frac 1 3}$ , $P(A|B)=\large {\frac 1 2}$ , find $P(A\cup B)$, $P(\overline A|A\cup B)$ .
 
 - [ ] **Answer:**
 
@@ -401,9 +401,9 @@ $P(A\cup B)=P(A)+P(B)-P(AB)$
 
 Addtional, according to the multiplication rule and definition for conditional probability, we have:
 
-$P(AB)=P(A)\times P(B|A)= \frac 1 4 \times \frac 1 3=\frac 1 {12}$
+$P(AB)=P(A)\times P(B|A)= \large \frac 1 4 \normalsize\times \large \frac 1 3\normalsize=\large\frac 1 {12}$
 
-$P(B)=\Large{P(AB) \over P(A|B)}\normalsize=\Large {\frac 1 {12} \over \frac 1 2}\normalsize=\Large\frac 1 6$
+$P(B)=\large{P(AB) \over P(A|B)}\normalsize=\large {\frac 1 {12} \over \frac 1 2}\normalsize=\large\frac 1 6$
 
 $\therefore P(A\cup B)=  \large\frac 1 4  \normalsize+ \large \frac 1 6 \normalsize- \large\frac 1 {12}\normalsize=\large\frac 1 3$
 
