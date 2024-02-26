@@ -401,7 +401,7 @@ $P(A\cup B)=P(A)+P(B)-P(AB)$
 
 Addtional, according to the multiplication rule and definition for conditional probability, we have:
 
-$P(AB)=P(A)\times P(B|A)=\Large \frac 1 4 \normalsize\times \Large\frac 1 3\normalsize=\Large\frac 1 {12}$
+$P(AB)=P(A)\times P(B|A)= \frac 1 4 \times \frac 1 3=\frac 1 {12}$
 
 $P(B)=\Large{P(AB) \over P(A|B)}\normalsize=\Large {\frac 1 {12} \over \frac 1 2}\normalsize=\Large\frac 1 6$
 
