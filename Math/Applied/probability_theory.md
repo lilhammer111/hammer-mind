@@ -370,7 +370,7 @@ P(A|B) = \frac{P(A \cap B)}{P(B)}
 $$
 
 
-provided that $P(B) > 0$.
+provided that $P(B) > 0$ .
 
 Here, 
 - $P(A \cap B)$ is the probability that both events A and B occur (also known as the joint probability).
@@ -405,7 +405,7 @@ $P(AB)=P(A)\times P(B|A)=\Large \frac 1 4 \normalsize\times \Large\frac 1 3\norm
 
 $P(B)=\Large{P(AB) \over P(A|B)}\normalsize=\Large {\frac 1 {12} \over \frac 1 2}\normalsize=\Large\frac 1 6$
 
-$\therefore P(A\cup B)=\Large \frac 1 4 \normalsize + \Large \frac 1 6 \normalsize - \Large \frac 1 {12}\normalsize=\Large \frac 1 3$
+$\therefore P(A\cup B)= \frac 1 4  +  \frac 1 6 - \frac 1 {12}=\frac 1 3$
 
 
 
