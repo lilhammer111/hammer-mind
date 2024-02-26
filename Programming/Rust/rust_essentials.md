@@ -12,6 +12,21 @@
 
 rust命名规范参考该文档：https://course.rs/practice/naming.html
 
+
+
+# 变量绑定
+
+在Rust中的变量绑定等同于其他语言的“赋值”，Rust使用“绑定”一词的用意无外乎与其“所有权”概念保持一致。变量绑定的关键词为`let`，例如：
+
+```rust
+fn main() {
+    let a = 1;
+    println!("{}", a)
+}
+```
+
+
+
 # 类型注解（Annotation）
 
 在声明变量时，rust使用annotatin来显式声明变量的类型：
@@ -20,13 +35,33 @@ rust命名规范参考该文档：https://course.rs/practice/naming.html
 let some_number: i32 = 5;
 ```
 
+
+
 # mut
 
 使用`mut`关键字声明的变量才可变
 
 ```rust
-let mut x = 1;
+fn main() {
+    let mut x = 1;
+    x = 27;
+    println!("{}", x)
+}
 ```
+
+
+
+```rust
+fn main() {
+    let x = 5;
+    println!("The value of x is {}", x); 
+    
+    x = 6; // 编译报错， 因为x变量没有使用mut关键字修饰，所以不可变。
+    println!("The value of x is {}", x); 
+}
+```
+
+
 
 # 常量（const）
 
@@ -36,18 +71,31 @@ let mut x = 1;
 
 常量必须在编译时就有已知的固定值，不能是运行时才能确定的结果。
 
-# 隐藏（shadowing）
 
-shadowing 可以解决变量类型转换时重新命名的问题，比如原先string类型的age变量要转成int类型需要额外使用一个变量age_int来接受，但是rust的shadowing特性可以解决。
 
-使用方法很简单就是使用let关键字修饰同名变量，比如：
+# 覆盖（shadowing）
+
+Rust的shadowing特性在Rust圣经中被译为“变量遮蔽”，然而我更喜欢使用“变量覆盖”，简单理解就是如果出现同名变量，则后者覆盖前者。
+
+shadowing可以解决相同作用域下变量类型转换时需重新命名的问题，比如原先字符串类型的age变量要转成整数类型，可能会需要额外使用一个age_int变量来接收（或者说绑定吧），但是rust的shadowing特性可以让事情变得简单，即使在相同作用域下，Rust也允许使用同名变量来“装载”另一种数据类型的值，但同时也意味着原先的同名变量已经被现在这个所“覆盖”。
+
+使用方法很简单就是使用`let`关键字修饰同名变量，比如：
+
+```rust
+fn main() {
+    let age = String::from("25");
+    let age = 35;
+    
+    println!("age: {}", age)
+}
+```
+
+
 
 这样是错的，因为没有使用`mut`关键字修饰变量`x`让他成为可变变量：
 
 ```rust
 fn main() {
-    println!("Hello, world!");
-
     let x = 5;
     println!("The value of x is {}", x); 
     
@@ -119,7 +167,7 @@ let tup: (i32, f64, u8) = (500, 6.4, 1);
 println!("{} {} {}", tup.0, tup.1, tup.2);
 ```
 
-tuple可以解构。
+tuple可以解构（或者说是模式匹配）。
 
 ```rust
 let (x, y, z) = tup;
@@ -130,7 +178,7 @@ println!("{} {} {}", x, y, z);
 
 类型固定，长度固定。
 
-声明方式，方式一：
+声明方式一：
 
 ```rust
 let a = [1, 2, 3, 4, 5]; 
@@ -142,7 +190,7 @@ let a = [1, 2, 3, 4, 5];
 let a = [3;5]; // equal to let a = [3, 3, 3, 3, 3];
 ```
 
-数组保存在stack上而不是heap上。 
+因为其类型和长度固定，数组保存在stack上而不是heap上。 
 
 数组的类型标注：
 
@@ -181,8 +229,12 @@ fn main() {
     let x = 5;
     let mut y = {
         let x = 1;
-        x + 3 // 注意这里没有分号
+        x // 注意这里没有分号，y此时应该是等于方括号作用域的临时变量x的值，也即1，此时x也是方括号这个作用域的返回值，并且被赋值给了y
     }
+ 	
+    
+    
+    println!("y: {}", y)
 }
 ```
 

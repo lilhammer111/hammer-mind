@@ -721,3 +721,9 @@ How to initialize the centoiod?
 2. select the $x_m$ as the centroid at random.
 3. repeat this proceduce for several times(may be 50 through 100 times) util the distortion converges
 
+
+
+How to decide the number of cluster?
+
+- elbow method
+
