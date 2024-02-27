@@ -264,7 +264,7 @@ We have the following properties of the probability of event $A$:
 
 ​	The second generalization of the fifth property:
 
-​	$P(\bigcup\limits_{i=1}^n A_i)=\sum\limits_{i=1}^nP(A_i)-\sum\limits_{1\leq i\leq j \leq n}P(A_iA_j)+\sum\limits_{1\leq i \leq j \leq k \leq n P(A_iA_jA_k)}+\cdots+(-1)^{n-1}P(A_1A_2\cdots A_n)$
+​	$P(\bigcup\limits_{i=1}^n A_i)=\sum\limits_{i=1}^nP(A_i)-\sum\limits_{1\leq i\leq j \leq n}P(A_iA_j)+\sum\limits_{1\leq i \leq j \leq k \leq n }P(A_iA_jA_k)+\cdots+(-1)^{n-1}P(A_1A_2\cdots A_n)$
 
 
 
@@ -393,7 +393,7 @@ $$
 
 Given $P(A)=\large{\frac 1 4}$ , $P(B|A)=\large{\frac 1 3}$ , $P(A|B)=\large {\frac 1 2}$ , find $P(A\cup B)$, $P(\overline A|A\cup B)$ .
 
-- [ ] **Answer:**
+- [x] **Answer:**
 
 According to the addtion rule for probability, we have:
 
@@ -407,21 +407,27 @@ $P(B)=\large{P(AB) \over P(A|B)}\normalsize=\large {\frac 1 {12} \over \frac 1 2
 
 $\therefore P(A\cup B)=  \large\frac 1 4  \normalsize+ \large \frac 1 6 \normalsize- \large\frac 1 {12}\normalsize=\large\frac 1 3$
 
+According to the definition of conditional probability,
+
+$P(\overline A|A\cup B)=1-P(A|A\cup B)=1-\large {P((A\cap A)\cup (A\cap B)) \over P(A\cup B)}\normalsize=1-3P(A)=\large \frac 1 4$
 
 
 
+**Example:**
 
- 
+There are 5 red balls and 4 white balls in a bag. Assuming that we draw a ball from the bag without putting it back, and repeat this process a total of three times.
 
+(1) Find the probability of drawing a red ball at least once in the first two draws.
 
+(2) Given that at least one of the first two draws results in a red ball, calculate the probability that exactly one of the first two draws is a red ball.
 
+(3) Find the probability of drawing a white ball at the third times while drawing a red ball at the first two draws.
 
+- [ ] **Answer:**
 
+(1)  Let $A_i=\{\text{draw a red ball for the }i\text{th times}\}$,  $B=\{\text{draw a red ball at least once} \}$, $C=\{\text{exactly one of the first two draws is a red ball}\}$, $D={}$
 
-
-
-
-
+So $P(B)=1-P(\overline B)=1-P(\overline A_1\cap \overline A_2)=1-P(\overline A_1)P(\overline A_2|\overline A_1)$
 
 
 
