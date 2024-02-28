@@ -425,11 +425,13 @@ There are 5 red balls and 4 white balls in a bag. Assuming that we draw a ball f
 
 - [ ] **Answer:**
 
-(1)  Let $A_i=\{\text{draw a red ball for the }i\text{th times}\}$,  $B=\{\text{draw a red ball at least once} \}$, $C=\{\text{exactly one of the first two draws is a red ball}\}$, $D={}$
+(1)  Let $A_i=\{\text{draw a red ball for the }i\text{th times}\}$,  $B=\{\text{draw a red ball at least once} \}$, $C=\{\text{exactly one of the first two draws is a red ball}\}$ .
 
-So $P(B)=1-P(\overline B)=1-P(\overline A_1\cap \overline A_2)=1-P(\overline A_1)P(\overline A_2|\overline A_1)$
+So $P(B)=1-P(\overline B)=1-P(\overline A_1\cap \overline A_2)=1-P(\overline A_1)P(\overline A_2|\overline A_1)=1-\large\frac 4 9\normalsize\times\large\frac 3 8\normalsize=\large\frac 5 6$
 
+(2) $P(C|B)=\large \frac {P(CB)} {P(B)}\normalsize=\large\frac{P(C)} {P(B)}\normalsize=\large{(\frac 5 9\times\frac 4 8)+(\frac49 \times\frac58) \over\frac56}\normalsize=\large\frac23 $
 
+(3) $P(A_1A_2\overline {A_3})=P(A_1)P(A_2|A_1)P(\overline{A_3}|A_1A_2)=\large\frac59\normalsize\times\large\frac48\normalsize\times\large\frac47$
 
 
 
