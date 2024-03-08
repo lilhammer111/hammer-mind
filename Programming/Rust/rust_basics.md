@@ -14,6 +14,28 @@ rust命名规范参考该文档：https://course.rs/practice/naming.html
 
 
 
+通常，对于 **type-level** 的构造 Rust 倾向于使用**驼峰命名法**，而对于 **value-level** 的构造使用**蛇形命名法**。详情如下：
+
+| 条目                               | 惯例                                                         |
+| ---------------------------------- | ------------------------------------------------------------ |
+| 包 Crates                          | [unclear](https://github.com/rust-lang/api-guidelines/issues/29) |
+| 模块 Modules                       | `snake_case`                                                 |
+| 类型 Types                         | `UpperCamelCase`                                             |
+| 特征 Traits                        | `UpperCamelCase`                                             |
+| 枚举 Enumerations                  | `UpperCamelCase`                                             |
+| 结构体 Structs                     | `UpperCamelCase`                                             |
+| 函数 Functions                     | `snake_case`                                                 |
+| 方法 Methods                       | `snake_case`                                                 |
+| 通用构造器 General constructors    | `new` or `with_more_details`                                 |
+| 转换构造器 Conversion constructors | `from_some_other_type`                                       |
+| 宏 Macros                          | `snake_case!`                                                |
+| 局部变量 Local variables           | `snake_case`                                                 |
+| 静态类型 Statics                   | `SCREAMING_SNAKE_CASE`                                       |
+| 常量 Constants                     | `SCREAMING_SNAKE_CASE`                                       |
+| 类型参数 Type parameters           | `UpperCamelCase`，通常使用一个大写字母: `T`                  |
+| 生命周期 Lifetimes                 | 通常使用小写字母: `'a`，`'de`，`'src`                        |
+| Features                           | [unclear](https://github.com/rust-lang/api-guidelines/issues/101) but see [C-FEATURE](https://course.rs/practice/naming.html#c-feature) |
+
 # 变量绑定
 
 在Rust中的变量绑定等同于其他语言的“赋值”，Rust使用“绑定”一词的用意无外乎与其“所有权”概念保持一致。变量绑定的关键词为`let`，例如：
@@ -1709,7 +1731,7 @@ Rust执行泛型代码的速度和执行具体类型代码的速度是一致的�
 
 
 
-# 特征（Trait）
+# Trait
 
 trait的定义：
 
@@ -1765,6 +1787,39 @@ fn main() {
     println!("{}",weibo.summarize());
 }
 ```
+
+
+
+derive派生机制：
+
+使用诸如`#[derive(Debug, PartialEq)]`的derive语法，Rust编译器会为你生成实现 `Debug` 和 `PartialEq` trait 的代码。这意味着你不需要手动实现这些 trait 的功能，编译器会为你处理。
+
+Go 语言采取了不同的方法，例如接口是隐式实现的，没有类似的自动派生机制。Go 语言的设计哲学倾向于简单性和明确性，即使这意味着在某些情况下需要更多的手动编码。
+
+在 Haskell 中，可以通过 `deriving` 关键字自动派生某些标准类型类的实例，例如 `Eq`, `Ord`, `Show`, 和 `Read`。这与 Rust 的自动派生非常相似，提供了快速实现标准接口的方式。
+
+一个简单的例子：
+
+```rust
+#[derive(Debug, PartialEq)]
+pub enum Method {
+    Get,
+    Post,
+    Uninitialized,
+}
+```
+
+常见的可以自动派生的trait:
+
+1. **`Clone`**: 用于创建一个对象的副本。如果所有字段都可以被克隆，则可以自动派生。
+2. **`Copy`**: 类似于 `Clone`，但用于那些不需要分配（或者说，可以在编译时被完全复制的类型）。它通常用于简单值类型（如整数类型和浮点类型）。自动派生 `Copy` 需要所有字段都是 `Copy` 的。
+3. **`Debug`**: 用于格式化一个对象的调试信息。这非常有用，因为它允许你通过 `{:?}` 格式说明符打印对象的内容，对调试非常有帮助。
+4. **`Default`**: 用于创建一个类型的默认值。如果类型的所有字段都有默认值，则可以自动派生。
+5. **`Eq` 和 `PartialEq`**: 用于比较类型的相等性。`PartialEq` 允许部分比较，而 `Eq` 是一个标记 trait，它表示没有比较限制（即总是提供全等比较）。如果类型的所有字段都实现了相应的 trait，则这些 trait 可以自动派生。
+6. **`Hash`**: 用于从一个对象计算出一个哈希值，通常用于散列数据结构如 `HashMap`。如果类型的所有字段都实现了 `Hash`，则可以自动派生。
+7. **`Ord` 和 `PartialOrd`**: 用于全序和部分序比较。`PartialOrd` 允许元素之间进行不完全排序，而 `Ord` 提供完整的排序功能。如果类型的所有字段都实现了相应的 trait，则可以自动派生。
+
+
 
 # 特征对象
 
