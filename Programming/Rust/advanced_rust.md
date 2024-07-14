@@ -99,3 +99,123 @@ fn main() {
 }
 ```
 
+
+
+# generic blanket impls， 泛型覆盖实现
+
+gbi，就是指**为泛型实现trait。**
+
+看例子：
+```rust
+trait Even {
+    fn is_even(self) -> bool;
+}
+
+impl Even for i8 {
+    fn is_even(self) -> bool {
+        self % 2_i8 == 0_i8
+    }
+}
+
+impl Even for u8 {
+    fn is_even(self) -> bool {
+        self % 2_u8 == 0_u8
+    }
+}
+
+impl Even for i16 {
+    fn is_even(self) -> bool {
+        self % 2_i16 == 0_i16
+    }
+}
+
+// etc
+
+#[test] // ✅
+fn test_is_even() {
+    assert!(2_i8.is_even());
+    assert!(4_u8.is_even());
+    assert!(6_i16.is_even());
+    // etc
+}
+```
+
+上面为`i8`,`u8`,`i16`每一种类型都实现了`Even`Trait，其实没必要，可以使用GBI来统一为一个泛型`T`实现`Even` trait：
+
+```rust
+use std::fmt::Debug;
+use std::convert::TryInto;
+use std::ops::Rem;
+
+trait Even {
+    fn is_even(self) -> bool;
+}
+
+// generic blanket impl
+impl<T> Even for T
+where
+    T: Rem<Output = T> + PartialEq<T> + Sized,
+    u8: TryInto<T>,
+    <u8 as TryInto<T>>::Error: Debug,
+{
+    fn is_even(self) -> bool {
+        // these unwraps will never panic
+        self % 2.try_into().unwrap() == 0.try_into().unwrap()
+    }
+}
+
+#[test] // ✅
+fn test_is_even() {
+    assert!(2_i8.is_even());
+    assert!(4_u8.is_even());
+    assert!(6_i16.is_even());
+    // etc
+}
+```
+
+
+
+**GBI不能被重写呀！！！**
+
+```rust
+impl Even for u8 { // ❌
+    fn is_even(self) -> bool {
+        self % 2_u8 == 0_u8
+    }
+}
+```
+
+
+
+# dbg!宏
+
+想要`dbg!()`，必须先实现Debug宏，当然可以直接derive派生Debug宏。
+
+Debug trait和 Display Trait的签名是一样的：
+```rust
+trait Debug {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result;
+}
+```
+
+```rust
+trait Display {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result;
+}
+```
+
+不同点在于：
+
+1. `dbg!`打印到 stderr 而不是 stdout，因此在我们的程序中，能够很容易地和标准输出的输出结果区分。
+2. `dbg!`会连同传入的表达式和表达式的计算结果一起打印出来。
+3. `dbg!`会获取传入参数的所有权并将其返回，因此你可以在表达式中使用它：
+
+但问题是：
+
+`dbg!`的唯一缺点就是它不会在 release 构建中自动裁剪，所以如果我们不想在最后生成的二进制包含这些内容，就必须手动移除它。
+
+
+
+# Eq和PartialEq
+
+Eq比PartialEq多一个` a == a `的自反性。主要针对浮点数中的`NaN`。
