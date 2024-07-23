@@ -1,3 +1,13 @@
+# 资源
+
+关于trait:
+
+https://rustmagazine.github.io/rust_magazine_2021/chapter_7/rusts-standard-library-traits.html
+
+关于宏：
+
+
+
 # 多线程中按引用获取闭包
 
 `Fn`类型的闭包：
@@ -103,7 +113,7 @@ fn main() {
 
 # generic blanket impls， 泛型覆盖实现
 
-gbi，就是指**为泛型实现trait。**
+gbi，就是指**使用泛型实现trait**。
 
 看例子：
 ```rust
@@ -175,7 +185,7 @@ fn test_is_even() {
 
 
 
-**GBI不能被重写呀！！！**
+**GBI不能被重写呀！！！**因为这样会引起实现冲突，编译器不知道应该使用GBI还是具体类型的实现。
 
 ```rust
 impl Even for u8 { // ❌
@@ -186,6 +196,8 @@ impl Even for u8 { // ❌
 ```
 
 
+
+诸如：`impl<E: error::Error> From<E> for Box<dyn error::Error>`这种，并不是严格的GBI，但是可以视为条件泛型实现。
 
 # dbg!宏
 
@@ -219,3 +231,144 @@ trait Display {
 # Eq和PartialEq
 
 Eq比PartialEq多一个` a == a `的自反性。主要针对浮点数中的`NaN`。
+
+
+
+# index方法会自动解引用Output
+
+这是`Index` Trait的实现，`index()`函数的签名中告诉我们他返回一个Output的引用（`fn index(&self, index: Idx) -> &Self::Output;`）
+
+```rust
+trait Index<Idx: ?Sized> {
+    type Output: ?Sized;
+    fn index(&self, index: Idx) -> &Self::Output;
+}
+```
+
+但是实际上，编译器在这里有一个语法糖：
+也即他会自动给`&Self::Output`解引用。
+
+例子：
+
+```rust
+fn main() {
+    let v = vec![1, 2, 3];
+    let num = v[0];
+}
+```
+
+按照函数签名，这里的`num`变量的类型应该是`&i32`，但是实际上这里的`num`却是`i32`类型，是因为，编译器在这里做了解引用：
+`let num = v[0]`其实是`let num = *v[0]`。
+
+一个有意思的环绕索引的例子：
+
+```rust
+use std::ops::Index;
+
+struct WrappingIndex<T>(Vec<T>);
+
+impl<T> Index<usize> for WrappingIndex<T> {
+    type Output = T;
+    fn index(&self, index: usize) -> &T {
+        &self.0[index % self.0.len()]
+    }
+}
+
+fn main() {
+    let wv = WrappingIndex(vec![1, 3, 5]);
+    let val = wv[12];
+    println!("{val}")
+}
+```
+
+
+
+# Into Trait
+
+rust为`Into`trait提供了GBI实现，但前提是`T`是一个`From`trait。
+
+```rust
+impl<T, U> Into<U> for T
+where
+    U: From<T>,
+{
+    fn into(self) -> U {
+        U::from(self)
+    }
+}
+```
+
+**`Into<T>`一个常见的用途是，使得需要拥有值的函数具有通用性，而不必关心它们是拥有值还是借用值。**
+
+```rust
+struct Person {
+    name: String,
+}
+
+impl Person {
+    // 接受:
+    // - String
+    fn new1(name: String) -> Person {
+        Person { name }
+    }
+
+    // 接受:
+    // - String
+    // - &String
+    // - &str
+    // - Box<str>
+    // - Cow<'_, str>
+    // - char
+    // 因为上面所有的类型都可以转换为 String
+    fn new2<N: Into<String>>(name: N) -> Person {
+        Person { name: name.into() }
+    }
+}
+```
+
+
+
+# 如何理解Cell？
+
+Cell通过拷贝语义在单线程中实现了不可变变量的内部可变性。
+理解：
+
+Cell其实是做了一层**封装**，他控制了语言层面的数据访问，让调用者**不意外**地修改一个变量。
+
+当我希望某个变量是可变时，我会直接这样定义：
+
+```rust
+let mut num = 1;
+```
+
+但这意味着对于所有人而言，这个`num`是可访问，可修改的，**无论何时何地**。
+
+但这并不暴露该变量的人的初衷，他不希望**无论何时何地**，这个变量都是可修改的，他希望由调用者**审慎**地决定何时何地对该变量进行修改，并且，非常清楚自己此时的修改行为。
+
+换句话说，如果这个变量是可变的，那调用者可以使用基本的赋值语句就可以修改，这是语言上的能力，这导致了调用者有可能会在不该修改变量值的时候修改，而使用Cell包裹，相当于让调用者更审慎，他无法随意的使用赋值语句进行修改变量，他必须要主动调用.set()方法，当他这样调用的时候，意味着他知道他在此处调用是合理的，这就是Cell的设计哲学。
+
+
+
+# Move和Fn 等Trait
+
+move关键字只决定捕获方式，不决定闭包实现了哪个Trait，当使用move关键字时，被捕获变量所有权转移到闭包中，注意copy语义：
+
+```rust
+fn main() {
+    let x = String::from("Hello");
+    let clo = move || println!("{}", x);
+    println!("{}", x);  // 这会编译报错，因为x已经被转移到闭包了
+    clo();
+}
+```
+
+而如果x是一个实现Copy Trait的类型，上述第三行不会报错：
+```rust
+fn main() {
+    let x = 10;
+    let clo = move || println!("{}", x);
+    println!("{}", x * 2); // 不会报错，闭包通过copy语义捕获x
+    clo();
+}
+```
+

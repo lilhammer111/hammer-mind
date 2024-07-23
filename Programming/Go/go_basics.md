@@ -1,12 +1,3 @@
----
-title: go 笔记
-date: 2023-07-29 14:55:20
-categories: ["programming", "go"]
-tags: ["go"]
----
-
-
-
 ## go 编码规范
 
 ### 命名规范
