@@ -372,3 +372,139 @@ fn main() {
 }
 ```
 
+
+
+
+
+# 如何理解异步中的“阻塞”？
+
+https://chatgpt.com/share/4a741d5f-be54-4760-affd-03385cb0f2bf
+
+
+
+
+
+# 满足'static生命周期的例子
+
+在 Rust 中，具有 `'static` 生命周期的值或类型是那些在程序的整个生命周期中都有效的值或类型。一般来说，以下几种情况的值或类型会具有 `'static` 生命周期：
+
+### 1. 基本类型和常量
+基本类型（如 `i32`、`f64`、`bool` 等）和常量（`const` 关键字定义的值）都具有 `'static` 生命周期，因为它们不包含任何引用。
+
+```rust
+const PI: f64 = 3.1415;
+let x: i32 = 42;
+```
+
+### 2. 具有 `'static` 生命周期的结构体和枚举
+如果结构体或枚举的所有字段都是 `'static` 的，那么该结构体或枚举也是 `'static` 的。
+
+```rust
+struct MyStruct {
+    a: i32,
+    b: bool,
+}
+
+enum MyEnum {
+    Variant1(i32),
+    Variant2(bool),
+}
+```
+
+### 3. 静态变量
+用 `static` 关键字声明的全局变量具有 `'static` 生命周期。
+
+```rust
+static GLOBAL: i32 = 100;
+```
+
+### 4. 所有权的字符串字面量
+字符串字面量（例如 `"hello"`）具有 `'static` 生命周期，因为它们在程序的整个生命周期内都是有效的。
+
+```rust
+let s: &'static str = "hello";
+```
+
+### 5. 无引用的 Box<T>
+`Box<T>` 类型本身是一个智能指针，用于在堆上分配内存。如果 `T` 是 `'static` 的，那么 `Box<T>` 也是 `'static` 的。
+
+```rust
+let boxed: Box<i32> = Box::new(5);
+```
+
+### 6. 没有非 `'static` 引用的泛型类型
+如果一个泛型类型 `T` 不包含任何非 `'static` 引用，那么它就是 `'static` 的。
+
+```rust
+struct Container<T> {
+    value: T,
+}
+
+let container: Container<i32> = Container { value: 10 };
+```
+
+实验：
+```rust
+use std::fmt::Debug;
+
+fn print_it<T: Debug + 'static>(input: &T) {
+    println!("'static value passed in is: {:?}", input);
+}
+
+#[derive(Debug)]
+struct Container<T> {
+    #[allow(dead_code)]
+    elem: T,
+}
+
+
+fn main() {
+    let container = Container {
+        elem: 1
+    };
+    print_it(&container);
+}
+```
+
+
+
+### 7. 函数指针
+
+函数指针类型本质上是指向代码的指针，具有 `'static` 生命周期。
+
+```rust
+fn my_function() -> i32 { 42 }
+let fn_ptr: fn() -> i32 = my_function;
+```
+
+### 8. 没有引用或只包含 `'static` 引用的闭包
+闭包可以具有 `'static` 生命周期，如果它们不捕获任何非 `'static` 引用。
+
+```rust
+let x = 5;
+let closure = move || x + 1;
+```
+
+### 特殊情况
+
+有些类型可能不是显而易见的具有 `'static` 生命周期，但在特定情况下会被认为是 `'static` 的。
+
+### 具有 `'static` 生命周期的 Trait 对象
+如果 Trait 对象的所有实现类型都具有 `'static` 生命周期，那么这个 Trait 对象也是 `'static` 的。
+
+```rust
+use std::fmt::Debug;
+
+fn print_it(input: Box<dyn Debug + 'static>) {
+    println!("{:?}", input);
+}
+
+fn main() {
+    let value = Box::new(42);
+    print_it(value);
+}
+```
+
+### 总结
+
+在 Rust 中，具有 `'static` 生命周期的值或类型是那些在程序的整个生命周期中都有效的值或类型。了解哪些类型具有 `'static` 生命周期对于编写健壮的 Rust 代码非常重要。基本类型、常量、静态变量、字符串字面量、没有引用或只包含 `'static` 引用的结构体和枚举、Box 指针和函数指针都具有 `'static` 生命周期。
