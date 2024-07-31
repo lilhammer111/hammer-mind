@@ -374,6 +374,26 @@ fn main() {
 
 
 
+# 如何区分Fn, FnOnce, FnMut？
+
+`FnMut`最容易区分，如果闭包捕获外部变量，并且修改了该变量，即实现了`FnMut`。
+
+
+
+但是`Fn`和`FnOnce`都是不可修改捕获的变量，鉴别他们俩主要看，这个闭包是否被作为函数传参传递给另一个函数，并且该参数的bound要求是FnOnce，那这个闭包就实现`FnOnce`，比如：
+```rust
+fn consume_clo<F: FnOnce>(f: F) {
+    f();
+}
+
+let print_clo = || println!("Hello FnOnce");
+
+comsume_closure(print_clo);
+
+// 如果我们想要继续使用 print_clo 这个闭包的话，就会报错，因为编译器通过前面的推断，发现print_clo是一个实现了FnOnce这个trait的闭包
+print();  // 编译不通过
+```
+
 
 
 # 如何理解异步中的“阻塞”？
